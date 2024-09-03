@@ -1,5 +1,7 @@
 # Voice-Emotion-Engine
 
-FNN model
-accuracy 94%
-predict emotion through voice on website
+FNN model<br>
+accuracy 94%<br>
+predict emotion of voice by uploading on website<br>
+run app.py
+
