@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Emotion Detection</title>
+</head>
+<body>
+    <h1>Voice Emotion Detection</h1>
+    <button onclick="startRecording()">Start Recording</button>
+    <button onclick="stopRecording()">Stop Recording</button>
+    <audio id="audioPlayer" controls></audio>
+    <br>
+    <button onclick="uploadAudio()">Predict Emotion</button>
+    <p id="result"></p>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks;
+
+        function startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+                    audioChunks = [];
+
+                    mediaRecorder.addEventListener("dataavailable", event => {
+                        audioChunks.push(event.data);
+                    });
+
+                    mediaRecorder.addEventListener("stop", () => {
+                        const audioBlob = new Blob(audioChunks);
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        const audio = document.getElementById('audioPlayer');
+                        audio.src = audioUrl;
+                        audioBlobToFile(audioBlob, "audio.wav");
+                    });
+                });
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+        }
+
+        function audioBlobToFile(blob, fileName) {
+            const file = new File([blob], fileName, {
+                type: 'audio/wav'
+            });
+            uploadAudioFile(file);
+        }
+
+        function uploadAudioFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('result').textContent = data.error;
+                } else {
+                    document.getElementById('result').textContent = "Predicted Emotion: " + data.emotion;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').textContent = "An error occurred while predicting the emotion.";
+            });
+        }
+    </script>
+</body>
+</html>
