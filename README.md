@@ -2,6 +2,7 @@
 
 Tess dataset
 accuracy 94%<br>
-predict emotion of voice by uploading on website<br>
+predict the emotion of voice by uploading on website<br>
+
 run app.py
 
